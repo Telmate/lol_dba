@@ -7,13 +7,25 @@ module LolDba
       end
 
       def methods_to_modify
-        [:execute, :do_execute, :rename_column, :change_column, :column_for, :tables, :indexes, :select_all] & connection.class.methods
+        [:execute, :do_execute, :rename_column, :change_column, :column_for, :tables, :indexes, :select_all] & connection.methods
       end
     
       def redefine_execute_methods
         save_original_methods
-        connection.class.send(:define_method, :execute) { |*args| Writer.write(args.first) }
-        connection.class.send(:define_method, :do_execute) { |*args| Writer.write(args.first) }
+        connection.class.send(:define_method, :execute) { |*args| 
+            if args.first =~ /^SHOW/
+              self.orig_execute(*args)
+            else
+              Writer.write(to_sql(args.first, args.last))
+            end 
+          }
+        connection.class.send(:define_method, :do_execute) { |*args| 
+            if args.first =~ /^SHOW/
+               self.orig_do_execute(*args)              
+            else
+              Writer.write(to_sql(args.first, args.last))
+            end 
+          }
         connection.class.send(:define_method, :column_for) { |*args| args.last }
         connection.class.send(:define_method, :change_column) { |*args| [] }
         connection.class.send(:define_method, :rename_column) { |*args| [] }
@@ -34,7 +46,7 @@ module LolDba
         
       def reset_methods
         methods_to_modify.each do |method_name|
-          connection.class.send(:alias_method, method_name, "orig_#{method_name}".to_sym)
+          connection.class.send(:alias_method, method_name, "orig_#{method_name}".to_sym) rescue nil
         end
         if defined?(Mytrilogy)
           Mytrilogy::MysqlMigrations.lol_dba_mode = false
