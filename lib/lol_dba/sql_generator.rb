@@ -62,7 +62,6 @@ module LolDba
     
       def migrations
         #Dir.glob(File.join(Rails.root, "db", "migrate", '*.rb'))
-        am = ActiveRecord::Migrator.new(:up,  ActiveRecord::Migrator.migrations_paths)
         migrations_paths = if ActiveRecord::Migrator.respond_to? :migrations_paths
           ActiveRecord::Migrator.migrations_paths
         else
