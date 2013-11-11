@@ -1,3 +1,5 @@
+require 'pathname'
+
 module LolDba
   class SqlGenerator
     class << self
@@ -90,9 +92,9 @@ module LolDba
         LolDba::Writer.file_name = "#{migration}.sql"
         config = ActiveRecord::Base.configurations[Rails.env]
         LolDba::Writer.write("USE `#{config['database']}`")
-
+        mpath = Pathname.new(file)
         # add git log as comments
-        `git log --format="-- Author of %h: %an, %ad%n-- Subject: %s%n" #{file} >> #{LolDba::Writer.path}`
+        `git log --format="-- Author of %h: %an, %ad%n-- Subject: %s%n" #{mpath.realpath} >> #{LolDba::Writer.path}`
 
         migration.up
         #MigrationSqlGenerator::Writer.file_name = "#{migration}_down.sql"
