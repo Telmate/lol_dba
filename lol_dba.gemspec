@@ -17,7 +17,7 @@ Gem::Specification.new do |s|
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
   s.require_paths = ["lib", "lib/lol_dba"]
 
-  s.add_dependency 'activerecord', '>= 3.0'
-  s.add_dependency 'actionpack', '>= 3.0'
-  s.add_dependency 'railties', '>= 3.0'
+  s.add_dependency 'activerecord', '>= 2.3'
+  s.add_dependency 'actionpack', '>= 2.3'
+  s.add_dependency 'rails', '>= 2.3'
 end
